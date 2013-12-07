@@ -6,18 +6,47 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.util.Log;
 
 public class Util {
+  private static String curFilename = "";
+  
+  public static String curAppname = "tunein_radio";
+  public static boolean feedbackEnabled = false;
   public static long privVolChangeTime = System.currentTimeMillis();
   
-  // write result to the scroll screen
-  // create lock to prevent multiple file writes at the same time
-  public static void writeResultToFile(String filename, String foldername, String content) {
-    String realFolderPath = Constant.outputPath + 
-                        (foldername == "" ? "" : "/" + foldername);
+  // convert to the current 
+  public static String convertTSinMStoTSinS(long ts) {
+    String tsInStr = String.valueOf(ts);
+    return tsInStr.substring(0, tsInStr.length() - 3) + "." + 
+           tsInStr.substring(tsInStr.length() - 3);
+  }
+  
+  // Fetch the current filename
+  public static String getFilename() {
+    return curFilename;
+  }
+  
+  //update the current Filename and return the lastest filename
+  public static void updateFilename() {
+    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy_MM_dd-HH:mm:ss");
+    String timeNow = sdfDate.format(new Date(System.currentTimeMillis()));
+    curFilename = curAppname + "_" + timeNow;
+  }
+ 
+  // wrapper to write to sdcard with dafault folder
+  public static void writeResultToFile(String filename, String line) {
+    writeResultToFile(filename, Constant.outputPath + "/" + curAppname, line);
+  }
+  
+  // Wrote a line to the designated file
+  public static void writeResultToFile(String filename, String realFolderPath, String line) {
     String dstFilePath = realFolderPath + "/" + filename;
+    // automatic append a newline to the line 
+    String content = line + "\n";
     File d = new File(realFolderPath);
     File f = new File(dstFilePath);
     

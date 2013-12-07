@@ -26,7 +26,9 @@ public class FeedbackService extends Service {
   @Override
   public void onCreate() {
     super.onCreate();
-    Toast.makeText(this, "FeedbackService: onCreate() succefully!!!", Toast.LENGTH_SHORT).show();
+    if (Constant.toastEnabled) {
+      Toast.makeText(this, "FeedbackService: onCreate() succefully!!!", Toast.LENGTH_SHORT).show();
+    }
     if (mAudioManager == null) {
       mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
       mReceiver = new ComponentName(getPackageName(),
@@ -37,33 +39,26 @@ public class FeedbackService extends Service {
   
   @Override
   public int onStartCommand(Intent intent, int flags, int startId)  {
-    Toast.makeText(this, "FeedbackService: onStartCommand succefully!!!", Toast.LENGTH_SHORT).show();
+    if (Constant.toastEnabled) {
+      Toast.makeText(this, "FeedbackService: onStartCommand succefully!!!", Toast.LENGTH_SHORT).show();
+    }
     return START_STICKY;
   }
   
   @Override
   public IBinder onBind(Intent intent) {
-    Toast.makeText(this, "FeedbackService: Bind the service succefully!!!", Toast.LENGTH_SHORT).show();
+    if (Constant.toastEnabled) {
+      Toast.makeText(this, "FeedbackService: Bind the service succefully!!!", Toast.LENGTH_SHORT).show();
+    }
     return mBinder;
   }
 
   @Override
   public void onDestroy() {
-    Toast.makeText(this, "FeedbackService: Destroy the service succefully!!!", Toast.LENGTH_SHORT).show();
+    if (Constant.toastEnabled) {
+      Toast.makeText(this, "FeedbackService: Destroy the service succefully!!!", Toast.LENGTH_SHORT).show();
+    }
     // Stop listening for button presses
     // mAudioManager.unregisterMediaButtonEventReceiver(mReceiver);
-  }
-  
-  // write the Feedback back to the disk
-  public void userFeedbackLogger() {
-    long timeToSleep = 1000;
-    
-      /*try {
-        Thread.sleep(timeToSleep);
-      } catch (InterruptedException e) {
-        Log.e(Constant.logTagMSG, "ERROR: " + e.getMessage());
-      }*/
-    Toast.makeText(this, "FeedbackService: Write the log to sdcard", Toast.LENGTH_SHORT).show();
-  
   }
 }

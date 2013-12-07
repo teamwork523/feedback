@@ -15,8 +15,12 @@ public class FeedbackButtonIntentReceiver extends BroadcastReceiver {
     // Toast.makeText(context, "FeedbackButtonIntentReceiver: current volume value is " + volume + " !!!", Toast.LENGTH_SHORT).show();
     if ("android.media.VOLUME_CHANGED_ACTION".equals(intentAction)) {
       long newTime = System.currentTimeMillis();
-      Toast.makeText(context, "FeedbackButtonIntentReceiver: receive volume change action after previous message " + (newTime - Util.privVolChangeTime) + " ms !!!", Toast.LENGTH_SHORT).show();
-      Util.privVolChangeTime = newTime;
+      if (Util.feedbackEnabled && newTime - Util.privVolChangeTime >= Constant.MIN_LOG_INTERVAL_MS) {
+        Toast.makeText(context, "Feedback received!!!", Toast.LENGTH_SHORT).show();
+        String content = Util.convertTSinMStoTSinS(newTime);
+        Util.writeResultToFile(Util.getFilename(), content);
+        Util.privVolChangeTime = newTime;
+      }
     }
   }
 

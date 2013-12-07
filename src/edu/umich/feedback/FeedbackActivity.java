@@ -55,12 +55,13 @@ public class FeedbackActivity extends Activity {
   
     public void onClick(View v) {
       doBindService();
+      Util.updateFilename();
+      Util.feedbackEnabled = true;
       String msg = "FeedbackActivity: Start button clicked!!!";
-      Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-      if (mService != null) {
-        mService.userFeedbackLogger();
+      if (Constant.toastEnabled) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
       }
-      // Log.i(Constant.logTagMSG, msg);
+      Log.i(Constant.logTagMSG, msg);
     }
   };
   
@@ -68,10 +69,13 @@ public class FeedbackActivity extends Activity {
   private OnClickListener OnClickStopListener = new OnClickListener() {
    
     public void onClick(View v) {
-      doUnbindService();
+      Util.feedbackEnabled = false;
+      doUnbindService(); 
       String msg = "FeedbackActivity: Stop button clicked!!!";
-      Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-      // Log.i(Constant.logTagMSG, msg);
+      if (Constant.toastEnabled) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+      }
+      Log.i(Constant.logTagMSG, msg);
     }
   };
   
@@ -82,16 +86,20 @@ public class FeedbackActivity extends Activity {
     public void onServiceConnected(ComponentName className, IBinder service) {
       // bind to service
       mService = ((FeedbackService.FeedbackBinder) service).getService();
-      Toast.makeText(getApplicationContext(), "FeedbackActivity: Success bind service!!!",
-                     Toast.LENGTH_SHORT).show();
+      if (Constant.toastEnabled) {
+        Toast.makeText(getApplicationContext(), "FeedbackActivity: Success bind service!!!",
+                       Toast.LENGTH_SHORT).show();
+      }
     }
 
     @Override
     public void onServiceDisconnected(ComponentName arg0) {
       // disconnect service
       mService = null;
-      Toast.makeText(getApplicationContext(), "FeedbackActivity: Disconnect service!!!",
-                     Toast.LENGTH_SHORT).show();
+      if (Constant.toastEnabled) {
+        Toast.makeText(getApplicationContext(), "FeedbackActivity: Disconnect service!!!",
+                       Toast.LENGTH_SHORT).show();
+      }
     }
     
   };

@@ -1,3 +1,6 @@
-* Real-time User Feedback Collection Tool
+Real-time User Feedback Collection Tool
+====================
 
-** Author: Haokun Luo (haokun@umich.edu)
+Author
+====================
+* Haokun Luo (haokun@umich.edu)

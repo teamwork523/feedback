@@ -31,6 +31,13 @@ public class FeedbackService extends Service {
     }
     if (mAudioManager == null) {
       mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+      // reset the max volume and get the current volume value
+      Util.MAX_VOLUME = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+      Util.privVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      if (Constant.toastEnabled) {
+        Toast.makeText(this, "FeedbackService: Max volume is " + Util.MAX_VOLUME + "; current volume is " +
+        		           Util.privVolume, Toast.LENGTH_SHORT).show();
+      }
       mReceiver = new ComponentName(getPackageName(),
                       FeedbackButtonIntentReceiver.class.getName());
       mAudioManager.registerMediaButtonEventReceiver(mReceiver);
@@ -49,6 +56,13 @@ public class FeedbackService extends Service {
   public IBinder onBind(Intent intent) {
     if (Constant.toastEnabled) {
       Toast.makeText(this, "FeedbackService: Bind the service succefully!!!", Toast.LENGTH_SHORT).show();
+    }
+    if (mAudioManager != null) {
+      Util.privVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      if (Constant.toastEnabled) {
+        Toast.makeText(this, "FeedbackService: Max volume is " + Util.MAX_VOLUME + "; current volume is " +
+                       Util.privVolume, Toast.LENGTH_SHORT).show();
+      }
     }
     return mBinder;
   }

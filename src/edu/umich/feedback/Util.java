@@ -16,6 +16,8 @@ public class Util {
   
   public static String curAppname = "tunein_radio";
   public static boolean feedbackEnabled = false;
+  public static int MAX_VOLUME = 15;
+  public static int privVolume = 0;
   public static long privVolChangeTime = System.currentTimeMillis();
   
   // convert to the current 

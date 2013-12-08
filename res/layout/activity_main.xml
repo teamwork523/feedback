@@ -7,10 +7,44 @@
     tools:context=".MainActivity" >
 
     <LinearLayout
-        android:id="@+id/margin"
+        android:id="@+id/margin1"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="200dp"  >
+        android:layout_height="100dp"  >
+    </LinearLayout>
+    
+    <LinearLayout
+        android:focusable="true" android:focusableInTouchMode="true"
+        android:id="@+id/linearLayout1"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="45dp">
+        
+        <TextView
+            android:id="@+id/target_app_name_label"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#000066"
+            android:text="App Name:" />
+        
+        <EditText
+            android:id="@+id/target_app_name"
+            android:layout_width="250dp"
+            android:layout_height="45dp"
+            android:gravity="center"
+            android:inputType="textCapSentences"
+            android:text="@string/target_app_name" />
+        
+  </LinearLayout>
+  
+    <LinearLayout
+        android:id="@+id/margin2"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"  >
     </LinearLayout>
     
     <LinearLayout

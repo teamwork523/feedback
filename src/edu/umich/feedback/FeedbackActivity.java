@@ -6,7 +6,6 @@
 
 package edu.umich.feedback;
 
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.Activity;
@@ -19,6 +18,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class FeedbackActivity extends Activity {
@@ -26,6 +26,7 @@ public class FeedbackActivity extends Activity {
   private FeedbackService mService;
   private Button startButton;
   private Button stopButton;
+  private EditText targetAppName;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class FeedbackActivity extends Activity {
   private void findAllViewsById() {
     startButton = (Button) findViewById(R.id.startButton);
     stopButton = (Button) findViewById(R.id.stopButton);
+    targetAppName = (EditText) findViewById(R.id.target_app_name);
   }
 
   // define start button listener
@@ -55,6 +57,7 @@ public class FeedbackActivity extends Activity {
   
     public void onClick(View v) {
       doBindService();
+      Util.updateAppName(targetAppName.getText().toString());
       Util.updateFilename();
       Util.feedbackEnabled = true;
       String msg = "FeedbackActivity: Start button clicked!!!";

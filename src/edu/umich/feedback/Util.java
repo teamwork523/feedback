@@ -30,6 +30,10 @@ public class Util {
     return curFilename;
   }
   
+  public static void updateAppName(String app_name) {
+    curAppname = app_name.toLowerCase().replace(' ', '_');
+  }
+  
   //update the current Filename and return the lastest filename
   public static void updateFilename() {
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy_MM_dd-HH:mm:ss");

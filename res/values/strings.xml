@@ -7,5 +7,6 @@
     <string name="startButtonText">Start</string>
     <string name="stopButtonText">Stop</string>
     <string name="service_name">FeedbackService</string>
+    <string name="target_app_name">TuneIn Radio</string>
 
 </resources>

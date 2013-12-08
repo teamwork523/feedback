@@ -13,6 +13,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -21,7 +23,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class FeedbackActivity extends Activity {
+  private HashMap<String, PInfo> appMap = null;
   private boolean mIsBound = false;
   private FeedbackService mService;
   private Button startButton;
@@ -36,6 +42,11 @@ public class FeedbackActivity extends Activity {
     startButton.setOnClickListener(OnClickStartListener);
     stopButton.setOnClickListener(OnClickStopListener);
     startService(new Intent(this, FeedbackService.class));
+    
+    // fetch all the application information
+    if (appMap == null) {
+      appMap = getInstalledApps(false);
+    }
   }
 
   @Override
@@ -58,6 +69,7 @@ public class FeedbackActivity extends Activity {
     public void onClick(View v) {
       doBindService();
       Util.updateAppName(targetAppName.getText().toString());
+      
       Util.updateFilename();
       Util.feedbackEnabled = true;
       String msg = "FeedbackActivity: Start button clicked!!!";
@@ -65,6 +77,29 @@ public class FeedbackActivity extends Activity {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
       }
       Log.i(Constant.logTagMSG, msg);
+      
+      // launch the application!!!
+      if (appMap != null && appMap.containsKey(Util.curAppname)) {
+        Intent i;
+        PackageManager manager = getPackageManager();
+        try {
+          i = manager.getLaunchIntentForPackage(appMap.get(Util.curAppname).pname);
+          if (i == null)
+              throw new PackageManager.NameNotFoundException();
+          i.addCategory(Intent.CATEGORY_LAUNCHER);
+          startActivity(i);
+        } catch (PackageManager.NameNotFoundException e) {
+          Toast.makeText(getApplicationContext(), 
+                "ERROR: fail to find the application name from package manager. Please try again", 
+                Toast.LENGTH_SHORT).show();
+          Util.feedbackEnabled = false;
+        }
+      } else {
+        Toast.makeText(getApplicationContext(), 
+              "ERROR: fail to find the application name from installed packages. Please try again", 
+              Toast.LENGTH_SHORT).show();
+        Util.feedbackEnabled = false;
+      }
     }
   };
   
@@ -131,5 +166,40 @@ public class FeedbackActivity extends Activity {
   protected void onDestroy() {
     super.onDestroy();
     //doUnbindService();
+  }
+  
+  // Helper class to get all the application's 
+  private class PInfo {
+    private String appname = "";
+    private String pname = "";
+    private String versionName = "";
+    private int versionCode = 0;
+    private void prettyPrint() {
+      String detail = appname + "\n" + pname + "\n" + versionName + "\n" + versionCode;
+      if (Constant.toastEnabled) {
+        Toast.makeText(getApplicationContext(), "FeedbackActivity: package detail:\n" + detail,
+                       Toast.LENGTH_SHORT).show();
+      }
+    }
+  }
+  
+  // Return a map of Application name to its packet information
+  private HashMap<String, PInfo> getInstalledApps(boolean getSysPackages) {
+    HashMap<String, PInfo> res = new HashMap<String, PInfo>();        
+    List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+    for(int i=0;i<packs.size();i++) {
+        PackageInfo p = packs.get(i);
+        if ((!getSysPackages) && (p.versionName == null)) {
+            continue ;
+        }
+        PInfo newInfo = new PInfo();
+        newInfo.appname = Util.convertToAppName(p.applicationInfo.loadLabel(getPackageManager()).toString());
+        newInfo.pname = p.packageName;
+        newInfo.versionName = p.versionName;
+        newInfo.versionCode = p.versionCode;
+        res.put(newInfo.appname, newInfo);
+        Log.i(Constant.logTagMSG, "Appname: " + newInfo.appname + "; Package name: " + newInfo.pname);
+    }
+    return res; 
   }
 }

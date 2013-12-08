@@ -27,13 +27,18 @@ public class Util {
            tsInStr.substring(tsInStr.length() - 3);
   }
   
+  // convert to desired application name
+  public static String convertToAppName(String app_name) {
+    return app_name.toLowerCase().replace(' ', '_');
+  }
+  
   // Fetch the current filename
   public static String getFilename() {
     return curFilename;
   }
   
   public static void updateAppName(String app_name) {
-    curAppname = app_name.toLowerCase().replace(' ', '_');
+    curAppname = convertToAppName(app_name);
   }
   
   //update the current Filename and return the lastest filename

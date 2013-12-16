@@ -1,5 +1,8 @@
 package edu.umich.feedback;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,7 +10,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 public class FeedbackService extends Service {
@@ -16,6 +18,10 @@ public class FeedbackService extends Service {
   private final IBinder mBinder = new FeedbackBinder();
   private AudioManager mAudioManager = null;
   private ComponentName mReceiver = null;
+  private NotificationManager notificationManager;
+  
+  // This arbitrary id is private to Feedback
+  private static final int NOTIFICATION_ID = 53947;
   
   public class FeedbackBinder extends Binder {
     FeedbackService getService() {
@@ -29,7 +35,9 @@ public class FeedbackService extends Service {
     if (Constant.toastEnabled) {
       Toast.makeText(this, "FeedbackService: onCreate() succefully!!!", Toast.LENGTH_SHORT).show();
     }
-    if (mAudioManager == null) {
+    
+    // deprecated feedback collection method using volume button
+    /*if (mAudioManager == null) {
       mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
       // reset the max volume and get the current volume value
       Util.MAX_VOLUME = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -41,9 +49,40 @@ public class FeedbackService extends Service {
       mReceiver = new ComponentName(getPackageName(),
                       FeedbackButtonIntentReceiver.class.getName());
       mAudioManager.registerMediaButtonEventReceiver(mReceiver);
-    }
+    }*/
+    
+    // TODO: add the notification here
+    this.notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    addIconToStatusBar();
   }
   
+  private void addIconToStatusBar() {
+    notificationManager.notify(NOTIFICATION_ID,
+        createServiceRunningNotification());
+  }
+
+  private Notification createServiceRunningNotification() {
+    // Prepare intent which is triggered if the
+    // notification is selected
+    Intent intent = new Intent(this, FeedbackActivity.class);
+    // keep only one single instance
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 
+                  PendingIntent.FLAG_UPDATE_CURRENT);
+    
+    // Build notification
+    // Actions are just fake
+    Notification notice = new Notification(R.drawable.ic_launcher,
+        getString(R.string.notificationSchedulerStarted),
+        System.currentTimeMillis());
+    notice.flags |= Notification.FLAG_NO_CLEAR
+        | Notification.FLAG_ONGOING_EVENT;
+    // This is deprecated in 3.x. But most phones still run 2.x systems
+    notice.setLatestEventInfo(this, getString(R.string.app_name),
+        getString(R.string.notificationServiceRunning), pIntent);
+    return notice;
+  }
+
   @Override
   public int onStartCommand(Intent intent, int flags, int startId)  {
     if (Constant.toastEnabled) {

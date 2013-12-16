@@ -55,7 +55,8 @@ public class Util {
   
   // Wrote a line to the designated file
   public static void writeResultToFile(String filename, String realFolderPath, String line) {
-    String dstFilePath = realFolderPath + "/" + filename;
+    // append ".txt" to the filename
+    String dstFilePath = realFolderPath + "/" + filename + ".txt";
     // automatic append a newline to the line 
     String content = line + "\n";
     File d = new File(realFolderPath);

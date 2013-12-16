@@ -32,6 +32,7 @@ public class FeedbackActivity extends Activity {
   private FeedbackService mService;
   private Button startButton;
   private Button stopButton;
+  private Button resumeButton;
   private EditText targetAppName;
   
   @Override
@@ -41,14 +42,33 @@ public class FeedbackActivity extends Activity {
     findAllViewsById();
     startButton.setOnClickListener(OnClickStartListener);
     stopButton.setOnClickListener(OnClickStopListener);
+    resumeButton.setOnClickListener(OnClickResumeListener);
     startService(new Intent(this, FeedbackService.class));
     
     // fetch all the application information
     if (appMap == null) {
-      appMap = getInstalledApps(false);
+      appMap = getInstalledApps(true);
     }
   }
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    long newTime = System.currentTimeMillis();
+    String msg = "FeedbackActivity: onResume!!!";
+    if (Constant.toastEnabled) {
+      Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    Log.i(Constant.logTagMSG, msg);
+    
+    if (Util.feedbackEnabled == true) {
+      // collect feedback
+      Toast.makeText(getApplicationContext(), "Feedback received!!!", Toast.LENGTH_SHORT).show();
+      String content = Util.convertTSinMStoTSinS(newTime);
+      Util.writeResultToFile(Util.getFilename(), content);
+    }
+  }
+  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -60,6 +80,7 @@ public class FeedbackActivity extends Activity {
   private void findAllViewsById() {
     startButton = (Button) findViewById(R.id.startButton);
     stopButton = (Button) findViewById(R.id.stopButton);
+    resumeButton = (Button) findViewById(R.id.resumeButton);
     targetAppName = (EditText) findViewById(R.id.target_app_name);
   }
 
@@ -103,7 +124,7 @@ public class FeedbackActivity extends Activity {
     }
   };
   
-  //define start button listener
+  //define stop button listener
   private OnClickListener OnClickStopListener = new OnClickListener() {
    
     public void onClick(View v) {
@@ -117,6 +138,53 @@ public class FeedbackActivity extends Activity {
     }
   };
   
+  //define resume button listener
+  private OnClickListener OnClickResumeListener = new OnClickListener() {
+ 
+   public void onClick(View v) {
+     if (Util.feedbackEnabled != true) {
+       return;
+     }
+     
+     // Check whether entered app name exist
+     if (appMap != null && appMap.containsKey(targetAppName.getText().toString())) {
+       Toast.makeText(getApplicationContext(), 
+           "ERROR: fail to find the application name from installed packages. Please try again", 
+           Toast.LENGTH_SHORT).show();
+       return;
+     }
+     
+     doBindService();
+     
+     if (!Util.convertToAppName(targetAppName.getText().toString()).equals(Util.curAppname)) {
+       Toast.makeText(getApplicationContext(), "App Name changes!!!", Toast.LENGTH_SHORT).show();
+       Util.updateAppName(targetAppName.getText().toString());
+       Util.updateFilename();
+     }
+     
+     String msg = "FeedbackActivity: Resume button clicked!!!";
+     if (Constant.toastEnabled) {
+       Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+     }
+     Log.i(Constant.logTagMSG, msg);
+     
+     // launch the application!!!
+     Intent i;
+     PackageManager manager = getPackageManager();
+     try {
+       i = manager.getLaunchIntentForPackage(appMap.get(Util.curAppname).pname);
+       if (i == null)
+           throw new PackageManager.NameNotFoundException();
+       i.addCategory(Intent.CATEGORY_LAUNCHER);
+       startActivity(i);
+     } catch (PackageManager.NameNotFoundException e) {
+       Toast.makeText(getApplicationContext(), 
+             "ERROR: fail to find the application name from package manager. Please try again", 
+             Toast.LENGTH_SHORT).show();
+     }
+   }
+ };
+ 
   // connect with local service
   private ServiceConnection mConnection = new ServiceConnection() {
 

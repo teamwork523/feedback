@@ -33,12 +33,9 @@
         <service
             android:name=".FeedbackService">
         </service>
-        <receiver android:name=".FeedbackButtonIntentReceiver">
+        <receiver android:name="edu.umich.feedback.FeedbackIntentReceiver">
 				    <intent-filter>
-				        <action android:name="android.intent.action.MEDIA_BUTTON" />
-				        <action android:name="android.media.VOLUME_CHANGED_ACTION" />
-				        <!-- <action android:name="android.media.EXTRA_VOLUME_STREAM_VALUE" /> -->
-				        <!-- <action android:name="android.media.MASTER_VOLUME_CHANGED_ACTION" /> -->
+				        <action android:name="edu.umich.feedback.userFeedback" />
 				    </intent-filter>
 				</receiver>
     </application>

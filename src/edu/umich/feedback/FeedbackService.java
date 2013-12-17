@@ -64,11 +64,13 @@ public class FeedbackService extends Service {
   private Notification createServiceRunningNotification() {
     // Prepare intent which is triggered if the
     // notification is selected
-    Intent intent = new Intent(this, FeedbackActivity.class);
+    // Intent intent = new Intent(this, FeedbackActivity.class);
+    Intent intent = new Intent(this, FeedbackIntentReceiver.class);
+    intent.setAction(Constant.feedbackNotificaitonAction);
     // keep only one single instance
-    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-    PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 
-                  PendingIntent.FLAG_UPDATE_CURRENT);
+    // intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, intent, 
+                  PendingIntent.FLAG_CANCEL_CURRENT);
     
     // Build notification
     // Actions are just fake

@@ -42,30 +42,12 @@ public class FeedbackActivity extends Activity {
     findAllViewsById();
     startButton.setOnClickListener(OnClickStartListener);
     stopButton.setOnClickListener(OnClickStopListener);
-    resumeButton.setOnClickListener(OnClickResumeListener);
+    // resumeButton.setOnClickListener(OnClickResumeListener);
     startService(new Intent(this, FeedbackService.class));
     
     // fetch all the application information
     if (appMap == null) {
       appMap = getInstalledApps(true);
-    }
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-    long newTime = System.currentTimeMillis();
-    String msg = "FeedbackActivity: onResume!!!";
-    if (Constant.toastEnabled) {
-      Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-    }
-    Log.i(Constant.logTagMSG, msg);
-    
-    if (Util.feedbackEnabled == true) {
-      // collect feedback
-      Toast.makeText(getApplicationContext(), "Feedback received!!!", Toast.LENGTH_SHORT).show();
-      String content = Util.convertTSinMStoTSinS(newTime);
-      Util.writeResultToFile(Util.getFilename(), content);
     }
   }
   
@@ -80,7 +62,7 @@ public class FeedbackActivity extends Activity {
   private void findAllViewsById() {
     startButton = (Button) findViewById(R.id.startButton);
     stopButton = (Button) findViewById(R.id.stopButton);
-    resumeButton = (Button) findViewById(R.id.resumeButton);
+    // resumeButton = (Button) findViewById(R.id.resumeButton);
     targetAppName = (EditText) findViewById(R.id.target_app_name);
   }
 

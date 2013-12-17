@@ -75,7 +75,7 @@
         
     </LinearLayout>
     
-    <LinearLayout
+    <!-- <LinearLayout
         android:id="@+id/resumeButtons"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
@@ -90,6 +90,6 @@
               android:textStyle="bold"
               android:textColor="#000066"
               android:text="@string/resumeButtonText" />
-    </LinearLayout>
+    </LinearLayout> -->
 
 </LinearLayout>

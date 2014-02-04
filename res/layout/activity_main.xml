@@ -38,7 +38,7 @@
             android:inputType="textCapSentences"
             android:text="@string/target_app_name" />
         
-  </LinearLayout>
+    </LinearLayout>
   
     <LinearLayout
         android:id="@+id/margin2"

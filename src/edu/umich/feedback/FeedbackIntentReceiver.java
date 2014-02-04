@@ -16,8 +16,7 @@ public class FeedbackIntentReceiver extends BroadcastReceiver {
       long newTime = System.currentTimeMillis();
       Toast.makeText(context, "Feedback received!!!", Toast.LENGTH_SHORT).show();
       String content = Util.convertTSinMStoTSinS(newTime);
-      Util.writeResultToFile(Util.getFilename(), content);
+      Util.writeResultToFile(Util.getFilename("user_feedback"), content);
     }
   }
-
 }

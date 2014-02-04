@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,11 +72,29 @@ public class FeedbackActivity extends Activity {
   private OnClickListener OnClickStartListener = new OnClickListener() {
   
     public void onClick(View v) {
-      doBindService();
       Util.updateAppName(targetAppName.getText().toString());
-      
       Util.updateFilename();
+      
+      doBindService();
+      
       Util.feedbackEnabled = true;
+      
+      // create a thread to clear the logcat
+      //Thread logcatThread = new runCmd("logcat -c", true);
+      String filename = Util.getFilepath("logcat");
+      Log.i(Constant.logTagMSG, "FeedbackActivity: write to file " + filename);
+      // clear the logcat first
+      try {
+        Process sh = Runtime.getRuntime().exec("su");      
+        DataOutputStream os = new DataOutputStream(sh.getOutputStream());
+        os.writeBytes("logcat -c");
+        os.close();
+      } catch (IOException e) {
+        Log.e(Constant.logTagMSG, "ERROR: fail to clear logcat");
+      }
+      Thread logcatThread = new runCmd("logcat -v threadtime -f " + filename, true);
+      logcatThread.start();
+      
       String msg = "FeedbackActivity: Start button clicked!!!";
       if (Constant.toastEnabled) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
@@ -111,7 +131,20 @@ public class FeedbackActivity extends Activity {
    
     public void onClick(View v) {
       Util.feedbackEnabled = false;
-      doUnbindService(); 
+      Util.logcatEnabled = false;
+      doUnbindService();
+      
+      // create a thread to clear the logcat
+      // time mapping mediaPlayer log
+      Log.d("MediaPlayer", "sync_time " + String.valueOf(System.currentTimeMillis()));
+      //String filename = Util.getFilepath("logcat");
+      //Thread logcatThread = new runCmd("logcat -v threadtime -d -s MediaPlayer > " + filename, true);
+      // Thread logcatThread = new runCmd("logcat -v threadtime -d -b main -f " + filename, true);
+      //Thread logcatThread = new runCmd("logcat -c", true);
+      //logcatThread.start();
+      // kill the logcat process
+      Util.killProcess("logcat");
+      
       String msg = "FeedbackActivity: Stop button clicked!!!";
       if (Constant.toastEnabled) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();

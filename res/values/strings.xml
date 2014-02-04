@@ -8,7 +8,7 @@
     <string name="stopButtonText">Stop</string>
     <string name="resumeButtonText">Resume</string>
     <string name="service_name">FeedbackService</string>
-    <string name="target_app_name">TuneIn Radio</string>
+    <string name="target_app_name">YouTube</string>
     <string name="notificationSchedulerStarted">Feedback collection started</string>
     <string name="notificationServiceRunning">Please click to provide feedback</string>
 </resources>

@@ -1,5 +1,10 @@
 package edu.umich.feedback;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +15,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class FeedbackService extends Service {
@@ -22,6 +28,9 @@ public class FeedbackService extends Service {
   
   // This arbitrary id is private to Feedback
   private static final int NOTIFICATION_ID = 53947;
+  
+  // create a process to capture all the logcat files
+  private Process logcatProc = null;
   
   public class FeedbackBinder extends Binder {
     FeedbackService getService() {
@@ -36,22 +45,6 @@ public class FeedbackService extends Service {
       Toast.makeText(this, "FeedbackService: onCreate() succefully!!!", Toast.LENGTH_SHORT).show();
     }
     
-    // deprecated feedback collection method using volume button
-    /*if (mAudioManager == null) {
-      mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-      // reset the max volume and get the current volume value
-      Util.MAX_VOLUME = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-      Util.privVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-      if (Constant.toastEnabled) {
-        Toast.makeText(this, "FeedbackService: Max volume is " + Util.MAX_VOLUME + "; current volume is " +
-        		           Util.privVolume, Toast.LENGTH_SHORT).show();
-      }
-      mReceiver = new ComponentName(getPackageName(),
-                      FeedbackButtonIntentReceiver.class.getName());
-      mAudioManager.registerMediaButtonEventReceiver(mReceiver);
-    }*/
-    
-    // TODO: add the notification here
     this.notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     addIconToStatusBar();
   }
@@ -95,6 +88,7 @@ public class FeedbackService extends Service {
   
   @Override
   public IBinder onBind(Intent intent) {
+    Log.i(Constant.logTagMSG, "FeedbackService: successful bind");
     if (Constant.toastEnabled) {
       Toast.makeText(this, "FeedbackService: Bind the service succefully!!!", Toast.LENGTH_SHORT).show();
     }
@@ -105,6 +99,7 @@ public class FeedbackService extends Service {
                        Util.privVolume, Toast.LENGTH_SHORT).show();
       }
     }
+    
     return mBinder;
   }
 
@@ -112,6 +107,9 @@ public class FeedbackService extends Service {
   public void onDestroy() {
     if (Constant.toastEnabled) {
       Toast.makeText(this, "FeedbackService: Destroy the service succefully!!!", Toast.LENGTH_SHORT).show();
+    }
+    if (logcatProc != null) {
+      logcatProc.destroy();
     }
     // Stop listening for button presses
     // mAudioManager.unregisterMediaButtonEventReceiver(mReceiver);

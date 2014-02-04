@@ -1,12 +1,16 @@
 package edu.umich.feedback;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import android.util.Log;
@@ -16,6 +20,7 @@ public class Util {
   
   public static String curAppname = "tunein_radio";
   public static boolean feedbackEnabled = false;
+  public static boolean logcatEnabled = false;
   public static int MAX_VOLUME = 15;
   public static int privVolume = 0;
   public static long privVolChangeTime = System.currentTimeMillis();
@@ -33,8 +38,18 @@ public class Util {
   }
   
   // Fetch the current filename
-  public static String getFilename() {
-    return curFilename;
+  // You could also append customized tag at the end
+  public static String getFilename(String tag) {
+    if (tag.equals("")) {
+      return curFilename;
+    } else {
+      return curFilename + "_" + tag;
+    }
+  }
+  
+  // Fetch the whole filepath and name
+  public static String getFilepath(String tag) {
+    return Constant.userFeedbackPath + "/" + curAppname + "/" + getFilename(tag) + ".txt";
   }
   
   public static void updateAppName(String app_name) {
@@ -50,7 +65,7 @@ public class Util {
  
   // wrapper to write to sdcard with dafault folder
   public static void writeResultToFile(String filename, String line) {
-    writeResultToFile(filename, Constant.outputPath + "/" + curAppname, line);
+    writeResultToFile(filename, Constant.userFeedbackPath + "/" + curAppname, line);
   }
   
   // Wrote a line to the designated file
@@ -104,5 +119,73 @@ public class Util {
       e.printStackTrace();
       Log.e(Constant.logTagMSG, "ERROR: cannot write to file.\n" + e.toString());
     }
+  }
+  
+  // Kill a process based on the input keyword
+  public static void killProcess(String tar){
+    try {
+      Process sh = Runtime.getRuntime().exec("su");
+      DataOutputStream os = new DataOutputStream(sh.getOutputStream());
+      String Command;
+
+      try {
+        ArrayList<String> rows=getPlinesfromPS(tar);
+        for (int i=0;i<rows.size();i++){
+          String[] cols = rows.get(i).split("\\s");
+          for (int j=1;j<cols.length;j++) {
+            if (cols[j].length()!=0){ 
+              Command="kill "+ cols[j]+"\n";
+              os.writeBytes(Command);
+              break;
+            }
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }                     
+
+      Command="exit\n";
+      os.writeBytes(Command);
+      os.flush();
+      os.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  protected static ArrayList<String> getPlinesfromPS(String processName){
+    String resps=executePS();
+    String[] lines = resps.split("\\n");
+    ArrayList<String> reslines=new ArrayList<String>();
+    for (int i=0;i<lines.length;i++){
+      if (lines[i].contains(processName)){
+        reslines.add(lines[i]);
+      }
+    }
+    return reslines;
+  }
+
+  protected static String executePS() {
+    String line = null;
+    try {
+      Process process = Runtime.getRuntime().exec("ps");
+      InputStreamReader inputStream = new InputStreamReader(process.getInputStream());
+      BufferedReader reader = new BufferedReader(inputStream);
+      int read;
+      char[] buffer = new char[4096];
+      StringBuffer output = new StringBuffer();
+      while ((read = reader.read(buffer)) > 0) {
+        output.append(buffer, 0, read);
+      }
+      process.waitFor();
+
+      line = output.toString();
+      reader.close();
+      inputStream.close();
+      reader.close(); 
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return line;
   }
 }
